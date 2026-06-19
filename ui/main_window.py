@@ -473,6 +473,11 @@ class MainWindow(QMainWindow):
             folder_item = QTableWidgetItem(data['folder_datetime'].strftime('%d.%m.%y - %H:%M'))
             str_item = QTableWidgetItem(str(data['str']))
             
+            id_item.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            name_item.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            area_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            study_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            folder_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             str_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             
             color = QColor("#ffffff")
@@ -662,6 +667,9 @@ class MainWindow(QMainWindow):
             folder_item = QTableWidgetItem(data['folder_datetime'].strftime('%d.%m.%y - %H:%M'))
             str_item = QTableWidgetItem(str(data['str']))
             
+            id_item.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            name_item.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            area_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             study_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             folder_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             str_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -796,6 +804,9 @@ class MainWindow(QMainWindow):
                 folder_item = QTableWidgetItem(data['folder_datetime'].strftime('%d.%m.%y - %H:%M'))
                 str_item = QTableWidgetItem(str(data['str']))
                 
+                id_item.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+                name_item.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+                area_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 study_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 folder_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 str_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -862,6 +873,9 @@ class MainWindow(QMainWindow):
                 area_item = QTableWidgetItem(str(data.get('body_part', '')))
                 study_item = QTableWidgetItem(data['study_datetime_str'])
                 
+                id_item.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+                name_item.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+                area_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 study_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 
                 color = QColor("#ffffff")
