@@ -18,7 +18,7 @@ QTabWidget::pane {
     border: none;
     background-color: #2b2b2b;
     border-radius: 8px;
-    margin-top: -12px; /* Подтягивает тело панели вверх под вкладки */
+    margin-top: -18px; /* Подтягивает тело панели вверх под вкладки */
 }
 
 QTabBar {
