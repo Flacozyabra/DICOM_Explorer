@@ -322,44 +322,33 @@ class SettingsDialog(QDialog):
         self.pacs_scan_spin.setRange(1, 300)
         self.pacs_scan_spin.setValue(self.config['pacs_scan_time'] // 1000)
         pacs_form.addRow("Интервал сканирования PACS (сек):", self.pacs_scan_spin)
-        pacs_layout.addLayout(pacs_form)
 
-        # Сетевые настройки (IP-адрес и порт PACS сервера в одну строку)
-        net_layout = QHBoxLayout()
-        net_layout.setSpacing(15)
+        # IP PACS и Port на одной строке
+        ip_port_layout = QHBoxLayout()
+        ip_port_layout.setSpacing(10)
         
-        ip_layout = QVBoxLayout()
-        ip_label = QLabel("IP-адрес PACS сервера:")
         self.pacs_ip_edit = QLineEdit(self.config.get('pacs_ip', '127.0.0.1'))
-        ip_layout.addWidget(ip_label)
-        ip_layout.addWidget(self.pacs_ip_edit)
         
-        port_layout = QVBoxLayout()
-        port_label = QLabel("Порт PACS сервера:")
+        port_label = QLabel("Port:")
         self.pacs_port_spin = QSpinBox()
         self.pacs_port_spin.setRange(1, 65535)
         self.pacs_port_spin.setValue(int(self.config.get('pacs_port', 11112)))
-        port_layout.addWidget(port_label)
-        port_layout.addWidget(self.pacs_port_spin)
         
-        net_layout.addLayout(ip_layout, stretch=3)
-        net_layout.addLayout(port_layout, stretch=1)
-        pacs_layout.addLayout(net_layout)
+        ip_port_layout.addWidget(self.pacs_ip_edit, stretch=1)
+        ip_port_layout.addWidget(port_label)
+        ip_port_layout.addWidget(self.pacs_port_spin)
+        
+        pacs_form.addRow("IP PACS:", ip_port_layout)
 
-        # AET Remote и AET Local (каждый на своей строке)
-        aet_remote_layout = QVBoxLayout()
-        aet_remote_label = QLabel("AET Remote:")
+        # AET Remote (метка слева, поле ввода справа)
         self.pacs_called_aet_edit = QLineEdit(self.config.get('pacs_called_aet', 'ANY-SCP'))
-        aet_remote_layout.addWidget(aet_remote_label)
-        aet_remote_layout.addWidget(self.pacs_called_aet_edit)
-        pacs_layout.addLayout(aet_remote_layout)
+        pacs_form.addRow("AET Remote:", self.pacs_called_aet_edit)
 
-        aet_local_layout = QVBoxLayout()
-        aet_local_label = QLabel("AET Local:")
+        # AET Local (метка слева, поле ввода справа)
         self.pacs_calling_aet_edit = QLineEdit(self.config.get('pacs_calling_aet', 'ECHOSCU'))
-        aet_local_layout.addWidget(aet_local_label)
-        aet_local_layout.addWidget(self.pacs_calling_aet_edit)
-        pacs_layout.addLayout(aet_local_layout)
+        pacs_form.addRow("AET Local:", self.pacs_calling_aet_edit)
+        
+        pacs_layout.addLayout(pacs_form)
 
         # Кнопка Ping
         self.ping_btn = QPushButton("Ping")
@@ -371,6 +360,7 @@ class SettingsDialog(QDialog):
         
         pacs_layout.addStretch()
         self.stacked_widget.addWidget(pacs_widget)
+
         
         # Подключаем сигналы переключения меню к QStackedWidget
         self.sidebar.currentRowChanged.connect(self.stacked_widget.setCurrentIndex)
