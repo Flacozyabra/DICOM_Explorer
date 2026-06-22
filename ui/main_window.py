@@ -633,21 +633,13 @@ class MainWindow(QMainWindow):
         if not hasattr(self, 'archive_table') or not hasattr(self, 'pacs_table') or not hasattr(self, 'images_table'):
             return
             
-        # Сброс списков PACS и архива при переходе
         if index == 0:  # CT images
-            self.archive_table.setRowCount(0)
-            self.archive_cache = None
-            self.pacs_table.setRowCount(0)
             self.pacs_timer.stop()
+            self.show_patient_list()
         elif index == 1:  # CT archive
-            self.images_table.setRowCount(0)
-            self.pacs_table.setRowCount(0)
             self.pacs_timer.stop()
             self.fill_archive_list()
         elif index == 2:  # PACS
-            self.images_table.setRowCount(0)
-            self.archive_table.setRowCount(0)
-            self.archive_cache = None
             self.fill_pacs_list()
             # Запускаем таймер PACS
             is_auto_update = self.config.get('auto_update_is', 'on').lower() == 'on'
