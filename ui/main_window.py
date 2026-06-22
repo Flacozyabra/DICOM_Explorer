@@ -23,6 +23,34 @@ from ui.settings_dialog import SettingsDialog
 from themes.theme_manager import load_theme
 
 
+class ToggleTableWidget(QTableWidget):
+    def mousePressEvent(self, event):
+        if event.button() != Qt.MouseButton.LeftButton:
+            super().mousePressEvent(event)
+            return
+            
+        index = self.indexAt(event.pos())
+        if not index.isValid():
+            self.clearSelection()
+            super().mousePressEvent(event)
+            return
+
+        row = index.row()
+        is_selected = False
+        selected_ranges = self.selectedRanges()
+        for r in selected_ranges:
+            if r.topRow() <= row <= r.bottomRow():
+                is_selected = True
+                break
+
+        if is_selected:
+            self.clearSelection()
+            self.setCurrentIndex(self.model().index(-1, -1))
+            self.setFocus()
+        else:
+            super().mousePressEvent(event)
+
+
 class WatchdogHandler(QObject, FileSystemEventHandler):
     changed = pyqtSignal()
 
@@ -345,7 +373,7 @@ class MainWindow(QMainWindow):
         layout.setSpacing(10)
         
         # Таблица КТ-изображений
-        self.images_table = QTableWidget()
+        self.images_table = ToggleTableWidget()
         self.images_table.setColumnCount(7)
         self.images_table.setHorizontalHeaderLabels([
             "Patient ID", "Patient Name", "Slices", "Scanning Area", 
@@ -422,7 +450,7 @@ class MainWindow(QMainWindow):
         layout.setSpacing(10)
         
         # Таблица архива
-        self.archive_table = QTableWidget()
+        self.archive_table = ToggleTableWidget()
         self.archive_table.setColumnCount(7)
         self.archive_table.setHorizontalHeaderLabels([
             "Patient ID", "Patient Name", "Slices", "Scanning Area", 
@@ -470,7 +498,7 @@ class MainWindow(QMainWindow):
         layout.setSpacing(10)
         
         # Таблица PACS
-        self.pacs_table = QTableWidget()
+        self.pacs_table = ToggleTableWidget()
         self.pacs_table.setColumnCount(5)
         self.pacs_table.setHorizontalHeaderLabels([
             "Patient ID", "Patient Name", "Slices", "Scanning Area", "Study datetime"
