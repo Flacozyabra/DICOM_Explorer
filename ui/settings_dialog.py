@@ -276,27 +276,49 @@ class SettingsDialog(QDialog):
         self.archive_slice_spin.setToolTip("Максимальное количество отображаемых пациентов в архиве. Установите 0, чтобы показывать всех пациентов без ограничений.")
         archive_form.addRow("Лимит строк архива:", self.archive_slice_spin)
 
-        # Archive Enabled (Switch)
+        # Автоматическое архивирование (свич и количество дней в одной строке)
         self.archive_enabled_cb = ToggleSwitch()
         self.archive_enabled_cb.setChecked(self.config.get('archive_enabled', 'True').lower() == 'true')
-        archive_form.addRow("Автоматическое архивирование:", self.archive_enabled_cb)
-
-        # Archive Days
+        
         self.archive_days_spin = QSpinBox()
         self.archive_days_spin.setRange(1, 365)
         self.archive_days_spin.setValue(int(self.config.get('archive_days', 3)))
-        archive_form.addRow("Переносить в архив через (дней):", self.archive_days_spin)
+        self.archive_days_spin.setFixedWidth(60)
+        self.archive_days_spin.setStyleSheet("QSpinBox { background-color: #1e1e1e; color: #ffffff; border: 1px solid #2d2d2d; padding: 2px; border-radius: 4px; }")
 
-        # Archive Cleanup Enabled (Switch)
+        archive_days_label = QLabel("Переносить в архив через (дней):")
+        archive_days_label.setStyleSheet("color: #aaaaaa;")
+
+        archive_row_layout = QHBoxLayout()
+        archive_row_layout.addWidget(self.archive_enabled_cb)
+        archive_row_layout.addSpacing(20)
+        archive_row_layout.addWidget(archive_days_label)
+        archive_row_layout.addWidget(self.archive_days_spin)
+        archive_row_layout.addStretch()
+
+        archive_form.addRow("Автоматическое архивирование:", archive_row_layout)
+
+        # Автоочистка архива (свич и количество дней в одной строке)
         self.archive_cleanup_enabled_cb = ToggleSwitch()
         self.archive_cleanup_enabled_cb.setChecked(self.config.get('archive_cleanup_enabled', 'False').lower() == 'true')
-        archive_form.addRow("Автоочистка архива:", self.archive_cleanup_enabled_cb)
-
-        # Archive Cleanup Days
+        
         self.archive_cleanup_days_spin = QSpinBox()
         self.archive_cleanup_days_spin.setRange(1, 365)
         self.archive_cleanup_days_spin.setValue(int(self.config.get('archive_cleanup_days', 30)))
-        archive_form.addRow("Удалять из архива через (дней):", self.archive_cleanup_days_spin)
+        self.archive_cleanup_days_spin.setFixedWidth(60)
+        self.archive_cleanup_days_spin.setStyleSheet("QSpinBox { background-color: #1e1e1e; color: #ffffff; border: 1px solid #2d2d2d; padding: 2px; border-radius: 4px; }")
+
+        cleanup_days_label = QLabel("Удалять из архива через (дней):")
+        cleanup_days_label.setStyleSheet("color: #aaaaaa;")
+
+        cleanup_row_layout = QHBoxLayout()
+        cleanup_row_layout.addWidget(self.archive_cleanup_enabled_cb)
+        cleanup_row_layout.addSpacing(20)
+        cleanup_row_layout.addWidget(cleanup_days_label)
+        cleanup_row_layout.addWidget(self.archive_cleanup_days_spin)
+        cleanup_row_layout.addStretch()
+
+        archive_form.addRow("Автоочистка архива:", cleanup_row_layout)
         
         archive_layout.addLayout(archive_form)
         archive_layout.addStretch()
