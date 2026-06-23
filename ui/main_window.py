@@ -905,7 +905,7 @@ class MainWindow(QMainWindow):
         self.start_folder_scan()
 
 
-    def start_folder_scan(self):
+    def start_folder_scan(self, show_progress=False):
         if self.scan_worker and self.scan_worker.isRunning():
             return
 
@@ -930,11 +930,11 @@ class MainWindow(QMainWindow):
             if id_item:
                 self.selected_images_patient_id = id_item.text()
 
-        cleanup_str_val = self.config.get('cleanup_structures_enabled', 'True')
-        fix_id_val = self.config.get('fix_patient_id_enabled', 'True')
+        cleanup_str_val = self.config.get('cleanup_structures_enabled', 'False')
+        fix_id_val = self.config.get('fix_patient_id_enabled', 'False')
         prefixes_val = self.config.get('id_prefixes', 'CT_')
         archive_dir = self.config.get('archive_dir', '')
-        archive_enabled = self.config.get('archive_enabled', 'True')
+        archive_enabled = self.config.get('archive_enabled', 'False')
         archive_days = int(self.config.get('archive_days', 3))
         archive_cleanup_enabled = self.config.get('archive_cleanup_enabled', 'False')
         archive_cleanup_days = int(self.config.get('archive_cleanup_days', 30))
@@ -945,7 +945,18 @@ class MainWindow(QMainWindow):
             archive_cleanup_enabled, archive_cleanup_days
         )
         self.scan_worker.finished.connect(self.on_folder_scan_finished)
-        self.scan_worker.start()
+        
+        if show_progress:
+            from ui.loading_dialog import LoadingProgressDialog
+            self.scan_progress_dialog = LoadingProgressDialog(self, title="Сканирование папки КТ")
+            self.scan_progress_dialog.label.setText("Пожалуйста, подождите. Идет сканирование DICOM-файлов...")
+            self.scan_progress_dialog.progress.setRange(0, 0)
+            self.scan_worker.finished.connect(self.scan_progress_dialog.accept)
+            
+            self.scan_worker.start()
+            self.scan_progress_dialog.exec()
+        else:
+            self.scan_worker.start()
 
     def on_folder_scan_finished(self, patient_dict, log_messages):
         for msg in log_messages:
@@ -1226,7 +1237,7 @@ class MainWindow(QMainWindow):
 
     # ================= ЛОГИКА ТАБЛИЦЫ CT ARCHIVE =================
 
-    def fill_archive_list(self, silent=False):
+    def fill_archive_list(self, silent=False, show_progress=False):
         if self.archive_worker and self.archive_worker.isRunning():
             return
 
@@ -1255,10 +1266,21 @@ class MainWindow(QMainWindow):
             if id_item:
                 self.selected_archive_patient_id = id_item.text()
 
-        cleanup_str_val = self.config.get('cleanup_structures_enabled', 'True')
+        cleanup_str_val = self.config.get('cleanup_structures_enabled', 'False')
         self.archive_worker = ArchiveScanWorker(archive_dir, cleanup_str_val)
         self.archive_worker.finished.connect(lambda ad, lm: self.on_archive_scan_finished(ad, lm, silent))
-        self.archive_worker.start()
+        
+        if show_progress:
+            from ui.loading_dialog import LoadingProgressDialog
+            self.archive_progress_dialog = LoadingProgressDialog(self, title="Сканирование папки архива")
+            self.archive_progress_dialog.label.setText("Пожалуйста, подождите. Идет сканирование файлов архива...")
+            self.archive_progress_dialog.progress.setRange(0, 0)
+            self.archive_worker.finished.connect(self.archive_progress_dialog.accept)
+            
+            self.archive_worker.start()
+            self.archive_progress_dialog.exec()
+        else:
+            self.archive_worker.start()
 
     def on_archive_scan_finished(self, archive_dict, log_messages, silent=False):
         if not silent:
@@ -1696,7 +1718,7 @@ class MainWindow(QMainWindow):
             self.save_current_config()
             self.update_watcher_path()
             self.is_first_scan = True
-            self.start_folder_scan()
+            self.start_folder_scan(show_progress=True)
 
     def browse_archive_dir(self):
         current_dir = self.config.get('archive_dir', '')
@@ -1705,9 +1727,11 @@ class MainWindow(QMainWindow):
             norm_path = os.path.normpath(dir_path)
             self.config['archive_dir'] = norm_path
             self.save_current_config()
-            self.fill_archive_list()
+            self.fill_archive_list(show_progress=True)
 
     def open_settings_cmd(self):
+        old_ct_dir = self.config.get('ct_images_dir', '')
+        old_archive_dir = self.config.get('archive_dir', '')
         dialog = SettingsDialog(self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             # Перечитываем настройки
@@ -1739,10 +1763,20 @@ class MainWindow(QMainWindow):
             
             log_message(self.output_field, "Настройки сохранены и применены")
             
+            new_ct_dir = self.config.get('ct_images_dir', '')
+            new_archive_dir = self.config.get('archive_dir', '')
+            
+            ct_changed = (old_ct_dir != new_ct_dir)
+            archive_changed = (old_archive_dir != new_archive_dir)
+            
             # Обновляем текущую вкладку
-            self.on_tab_changed(self.tab_widget.currentIndex())
-            if self.tab_widget.currentIndex() == 0:
-                self.show_patient_list()
+            current_idx = self.tab_widget.currentIndex()
+            if current_idx == 0:
+                self.start_folder_scan(show_progress=ct_changed)
+            elif current_idx == 1:
+                self.fill_archive_list(show_progress=archive_changed)
+            else:
+                self.on_tab_changed(current_idx)
 
     def on_pacs_selection_changed(self):
         has_selection = len(self.pacs_table.selectedRanges()) > 0

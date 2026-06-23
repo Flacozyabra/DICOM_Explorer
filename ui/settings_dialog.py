@@ -103,8 +103,8 @@ class SettingsDialog(QDialog):
             'ct_images_dir': '',
             'archive_dir': '',
             'fix_switch_value': 'True',
-            'cleanup_structures_enabled': 'True',
-            'fix_patient_id_enabled': 'True',
+            'cleanup_structures_enabled': 'False',
+            'fix_patient_id_enabled': 'False',
             'id_prefixes': 'CT_',
             'client_dir': '',
             'archive_slice': 0,
@@ -120,7 +120,7 @@ class SettingsDialog(QDialog):
             'pacs_notification_is': 'off',
             'patient_font_size': 16,
             'patient_weight': 'Semibold',
-            'archive_enabled': 'True',
+            'archive_enabled': 'False',
             'archive_days': 3,
             'archive_cleanup_enabled': 'False',
             'archive_cleanup_days': 30,
@@ -249,13 +249,13 @@ class SettingsDialog(QDialog):
 
         # Автоудаление дубликатов структур
         self.cleanup_str_cb = ToggleSwitch()
-        self.cleanup_str_cb.setChecked(self.config.get('cleanup_structures_enabled', 'True').lower() == 'true')
+        self.cleanup_str_cb.setChecked(self.config.get('cleanup_structures_enabled', 'False').lower() == 'true')
         self.cleanup_str_cb.setToolTip("Удаляются старые файлы структур и остается только последний файл.")
         general_form.addRow("Автоудаление дубликатов структур:", self.cleanup_str_cb)
 
         # Исправление ID
         self.fix_patient_id_cb = ToggleSwitch()
-        self.fix_patient_id_cb.setChecked(self.config.get('fix_patient_id_enabled', 'True').lower() == 'true')
+        self.fix_patient_id_cb.setChecked(self.config.get('fix_patient_id_enabled', 'False').lower() == 'true')
         general_form.addRow("Исправление ID:", self.fix_patient_id_cb)
 
         # Поле ввода префиксов
@@ -294,7 +294,7 @@ class SettingsDialog(QDialog):
 
         # Автоматическое архивирование (свич и количество дней в одной строке)
         self.archive_enabled_cb = ToggleSwitch()
-        self.archive_enabled_cb.setChecked(self.config.get('archive_enabled', 'True').lower() == 'true')
+        self.archive_enabled_cb.setChecked(self.config.get('archive_enabled', 'False').lower() == 'true')
         
         self.archive_days_spin = QSpinBox()
         self.archive_days_spin.setRange(1, 365)
