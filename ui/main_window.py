@@ -905,8 +905,24 @@ class MainWindow(QMainWindow):
         
         # Определение абсолютного пути к иконке в папке src
         icon_path = self.config.get('icon_path', '')
-        if not icon_path or os.path.isdir(icon_path):
-            base_dir = icon_path if icon_path else os.getcwd()
+        custom_icon_found = False
+        if icon_path:
+            if os.path.isfile(icon_path) and os.path.exists(icon_path):
+                icon_path = os.path.abspath(icon_path)
+                custom_icon_found = True
+            elif os.path.isdir(icon_path):
+                potential_icon = os.path.abspath(os.path.join(icon_path, "src", "icon.png"))
+                if os.path.exists(potential_icon):
+                    icon_path = potential_icon
+                    custom_icon_found = True
+                else:
+                    potential_root_icon = os.path.abspath(os.path.join(icon_path, "icon.png"))
+                    if os.path.exists(potential_root_icon):
+                        icon_path = potential_root_icon
+                        custom_icon_found = True
+                        
+        if not custom_icon_found:
+            base_dir = os.getcwd()
             potential_icon = os.path.abspath(os.path.join(base_dir, "src", "icon.png"))
             if os.path.exists(potential_icon):
                 icon_path = potential_icon
@@ -914,8 +930,8 @@ class MainWindow(QMainWindow):
                 potential_root_icon = os.path.abspath(os.path.join(base_dir, "icon.png"))
                 if os.path.exists(potential_root_icon):
                     icon_path = potential_root_icon
-        else:
-            icon_path = os.path.abspath(icon_path)
+                else:
+                    icon_path = ""
 
         # Проверяем на появление новых файлов до фильтрации
         for patient_id, data in patient_dict.items():
