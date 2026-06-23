@@ -403,29 +403,30 @@ class SettingsDialog(QDialog):
         self.highlighting_cb.setChecked(self.config.get('highlighting_enabled', 'False').lower() == 'true')
         ui_form.addRow("Включить цветовую подсветку исследований:", self.highlighting_cb)
         
-        # Контейнер для зависимых свичей (с отступом текста)
+        # Контейнер для зависимых свичей
         self.highlight_sub_container = QFrame()
         self.highlight_sub_container.setObjectName("highlightSubContainer")
-        self.highlight_sub_container.setStyleSheet(
-            "QFrame#highlightSubContainer { "
-            "  border: none; "
-            "  margin-left: 30px; "
-            "}"
-        )
+        self.highlight_sub_container.setStyleSheet("QFrame#highlightSubContainer { border: none; }")
         sub_layout = QFormLayout(self.highlight_sub_container)
         sub_layout.setContentsMargins(0, 5, 0, 5)
         
+        self.lbl_highlight_new = QLabel("Выделять новые исследования:")
+        self.lbl_highlight_new.setStyleSheet("QLabel { padding-left: 30px; }")
         self.highlight_new_cb = ToggleSwitch()
         self.highlight_new_cb.setChecked(self.config.get('highlight_new_enabled', 'False').lower() == 'true')
-        sub_layout.addRow("Выделять новые исследования:", self.highlight_new_cb)
+        sub_layout.addRow(self.lbl_highlight_new, self.highlight_new_cb)
         
+        self.lbl_highlight_today = QLabel("Выделять сегодняшние исследования:")
+        self.lbl_highlight_today.setStyleSheet("QLabel { padding-left: 30px; }")
         self.highlight_today_cb = ToggleSwitch()
         self.highlight_today_cb.setChecked(self.config.get('highlight_today_enabled', 'False').lower() == 'true')
-        sub_layout.addRow("Выделять сегодняшние исследования:", self.highlight_today_cb)
+        sub_layout.addRow(self.lbl_highlight_today, self.highlight_today_cb)
         
+        self.lbl_highlight_no_str = QLabel("Выделять исследования без структур:")
+        self.lbl_highlight_no_str.setStyleSheet("QLabel { padding-left: 30px; }")
         self.highlight_no_str_cb = ToggleSwitch()
         self.highlight_no_str_cb.setChecked(self.config.get('highlight_no_str_enabled', 'False').lower() == 'true')
-        sub_layout.addRow("Выделять исследования без структур:", self.highlight_no_str_cb)
+        sub_layout.addRow(self.lbl_highlight_no_str, self.highlight_no_str_cb)
         
         ui_form.addRow(self.highlight_sub_container)
         
