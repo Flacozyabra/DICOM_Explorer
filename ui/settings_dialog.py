@@ -1,11 +1,11 @@
 import os
 import sys
 import json
-from PyQt6.QtCore import Qt, QRect, QPoint, QPropertyAnimation, pyqtProperty, QThread, pyqtSignal
-from PyQt6.QtGui import QColor, QFont, QPainter, QBrush, QPen
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
                              QLineEdit, QPushButton, QFileDialog, QFormLayout, 
-                             QSpinBox, QCheckBox, QDialogButtonBox, QMessageBox,
+                             QSpinBox, QDialogButtonBox, QMessageBox,
                              QComboBox, QListWidget, QStackedWidget, QWidget, QFrame)
 
 from ui.toggle_switch import ToggleSwitch
