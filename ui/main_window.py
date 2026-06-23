@@ -1387,7 +1387,8 @@ class MainWindow(QMainWindow):
                 continue
                 
             name_lower = str(data['patient_name']).lower()
-            if search_text in name_lower:
+            words = name_lower.replace('^', ' ').split()
+            if any(word.startswith(search_text) for word in words):
                 valid_items[patient_id] = data
 
         sorted_items = sorted(valid_items.items(), key=lambda x: x[1]['folder_datetime'], reverse=True)
