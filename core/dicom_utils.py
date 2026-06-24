@@ -28,7 +28,8 @@ def delete_redundant_str(patient_dir, output_field=None):
             os.remove(os.path.join(patient_dir, file))
             deleted_count += 1
             if output_field:
-                log_message(output_field, f"Был удален старый файл структур ({file})")
+                patient_id = os.path.basename(patient_dir)
+                log_message(output_field, f"У пациента {patient_id} был удален старый файл структур ({file})")
         except Exception as e:
             if output_field:
                 log_message(output_field, f"Ошибка при удалении {file}: {e}")
