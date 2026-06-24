@@ -1,6 +1,8 @@
 import os
 import sys
 import shutil
+import json
+import urllib.request
 
 VERSION = "1.0.0"
 
@@ -53,3 +55,35 @@ def get_resource_path(relative_path):
     except AttributeError:
         base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     return os.path.normpath(os.path.join(base_path, relative_path))
+
+def check_github_updates():
+    """
+    Checks GitHub releases for the latest version.
+    Returns (latest_tag_name, html_url) if successful, or (None, None).
+    """
+    url = "https://api.github.com/repos/Flacozyabra/DICOM_WatchDog/releases/latest"
+    req = urllib.request.Request(url, headers={'User-Agent': 'DICOM_WatchDog'})
+    try:
+        with urllib.request.urlopen(req, timeout=5) as response:
+            data = json.loads(response.read().decode())
+            tag_name = data.get('tag_name', '')
+            html_url = data.get('html_url', 'https://github.com/Flacozyabra/DICOM_WatchDog/releases')
+            return tag_name, html_url
+    except Exception as e:
+        print(f"Error checking for updates: {e}")
+        return None, None
+
+def is_newer_version(current_version, latest_version):
+    if not latest_version:
+        return False
+    curr = current_version.lower().lstrip('v')
+    late = latest_version.lower().lstrip('v')
+    try:
+        curr_parts = [int(p) for p in curr.split('.')]
+        late_parts = [int(p) for p in late.split('.')]
+        max_len = max(len(curr_parts), len(late_parts))
+        curr_parts += [0] * (max_len - len(curr_parts))
+        late_parts += [0] * (max_len - len(late_parts))
+        return late_parts > curr_parts
+    except ValueError:
+        return late > curr

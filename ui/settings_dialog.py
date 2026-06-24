@@ -58,6 +58,15 @@ class PacsPingWorker(QThread):
         self.finished.emit(success, msg)
 
 
+class UpdateCheckWorker(QThread):
+    finished = pyqtSignal(str, str)
+
+    def run(self):
+        from core.config_utils import check_github_updates
+        tag, url = check_github_updates()
+        self.finished.emit(tag or "", url or "")
+
+
 class SettingsDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -118,6 +127,7 @@ class SettingsDialog(QDialog):
             'icon_path': '',
             'pacs_scan_time': 10000,
             'auto_update_is': 'off',
+            'check_updates_at_startup': 'on',
             'pacs_notification_is': 'off',
             'patient_font_size': 16,
             'patient_weight': 'Semibold',
@@ -258,6 +268,17 @@ class SettingsDialog(QDialog):
         self.pacs_notify_cb = ToggleSwitch()
         self.pacs_notify_cb.setChecked(self.config.get('pacs_notification_is', 'off').lower() == 'on')
         general_form.addRow("Уведомления PACS:", self.pacs_notify_cb)
+
+        # Автопроверка обновлений
+        self.check_updates_cb = ToggleSwitch()
+        self.check_updates_cb.setChecked(self.config.get('check_updates_at_startup', 'on').lower() == 'on')
+        general_form.addRow("Проверять обновления при запуске:", self.check_updates_cb)
+
+        # Кнопка ручной проверки обновлений
+        self.btn_check_updates = QPushButton("Проверить обновления")
+        self.btn_check_updates.setFixedHeight(30)
+        self.btn_check_updates.clicked.connect(self.manual_check_updates)
+        general_form.addRow("", self.btn_check_updates)
         
         # Разделитель
         line = QFrame()
@@ -635,6 +656,7 @@ class SettingsDialog(QDialog):
         self.highlight_today_cb.toggled.connect(self.on_setting_changed)
         self.highlight_no_str_cb.toggled.connect(self.on_setting_changed)
         self.pacs_notify_cb.toggled.connect(self.on_setting_changed)
+        self.check_updates_cb.toggled.connect(self.on_setting_changed)
         self.cleanup_str_cb.toggled.connect(self.on_setting_changed)
         self.fix_patient_id_cb.toggled.connect(self.on_setting_changed)
         self.id_prefixes_edit.textChanged.connect(self.on_setting_changed)
@@ -675,6 +697,7 @@ class SettingsDialog(QDialog):
         self.config['patient_weight'] = self.patient_weight_combo.currentText()
         self.config['notification_is'] = 'on' if self.notify_cb.isChecked() else 'off'
         self.config['pacs_notification_is'] = 'on' if self.pacs_notify_cb.isChecked() else 'off'
+        self.config['check_updates_at_startup'] = 'on' if self.check_updates_cb.isChecked() else 'off'
         self.config['auto_update_is'] = self.config.get('auto_update_is', 'off')
         self.config['cleanup_structures_enabled'] = 'True' if self.cleanup_str_cb.isChecked() else 'False'
         self.config['fix_patient_id_enabled'] = 'True' if self.fix_patient_id_cb.isChecked() else 'False'
@@ -733,3 +756,38 @@ class SettingsDialog(QDialog):
         msg.setText(message)
         apply_dark_title_bar(msg)
         msg.exec()
+
+    def manual_check_updates(self):
+        self.btn_check_updates.setEnabled(False)
+        self.btn_check_updates.setText("Проверка...")
+        
+        self.manual_update_worker = UpdateCheckWorker()
+        self.manual_update_worker.finished.connect(self.on_manual_update_checked)
+        self.manual_update_worker.start()
+
+    def on_manual_update_checked(self, latest_version, html_url):
+        self.btn_check_updates.setEnabled(True)
+        self.btn_check_updates.setText("Проверить обновления")
+        
+        from core.config_utils import VERSION, is_newer_version
+        if latest_version and is_newer_version(VERSION, latest_version):
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Icon.Information)
+            msg.setWindowTitle("Доступно обновление")
+            msg.setText(f"Доступна новая версия: {latest_version}.\n\nХотите перейти на страницу скачивания?")
+            msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            msg.setDefaultButton(QMessageBox.StandardButton.Yes)
+            apply_dark_title_bar(msg)
+            
+            if msg.exec() == QMessageBox.StandardButton.Yes:
+                from PyQt6.QtGui import QDesktopServices
+                from PyQt6.QtCore import QUrl
+                QDesktopServices.openUrl(QUrl(html_url))
+        else:
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Icon.Information)
+            msg.setWindowTitle("Обновление")
+            msg.setText("У вас установлена актуальная версия приложения.")
+            apply_dark_title_bar(msg)
+            msg.exec()
+

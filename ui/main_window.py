@@ -317,6 +317,9 @@ class MainWindow(QMainWindow):
         
         # Первоначальное заполнение
         self.show_patient_list()
+        
+        # Проверка обновлений при запуске
+        self.check_for_updates_on_startup()
 
     def load_config(self):
         # Быстрый способ получить актуальные настройки из config.txt
@@ -2046,4 +2049,44 @@ class MainWindow(QMainWindow):
         # Останавливаем наблюдатель перед выходом, чтобы не зависал фоновый поток
         self.stop_file_watcher()
         super().closeEvent(event)
+
+    def check_for_updates_on_startup(self):
+        if self.config.get('check_updates_at_startup', 'on').lower() == 'on':
+            from ui.settings_dialog import UpdateCheckWorker
+            self.startup_update_worker = UpdateCheckWorker()
+            self.startup_update_worker.finished.connect(self.on_startup_update_checked)
+            self.startup_update_worker.start()
+
+    def on_startup_update_checked(self, latest_version, html_url):
+        from core.config_utils import is_newer_version
+        if latest_version and is_newer_version(VERSION, latest_version):
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Icon.Information)
+            msg.setWindowTitle("Доступно обновление")
+            msg.setText(f"Доступна новая версия: {latest_version}.\n\nХотите перейти на страницу скачивания?")
+            msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            msg.setDefaultButton(QMessageBox.StandardButton.Yes)
+            
+            from PyQt6.QtWidgets import QCheckBox
+            cb = QCheckBox("Больше не проверять при запуске")
+            msg.setCheckBox(cb)
+            
+            from ui.settings_dialog import apply_dark_title_bar
+            apply_dark_title_bar(msg)
+            
+            if msg.exec() == QMessageBox.StandardButton.Yes:
+                from PyQt6.QtGui import QDesktopServices
+                from PyQt6.QtCore import QUrl
+                QDesktopServices.openUrl(QUrl(html_url))
+                
+            if cb.isChecked():
+                self.config['check_updates_at_startup'] = 'off'
+                from core.config_utils import get_config_path
+                import json
+                try:
+                    with open(get_config_path(), "w", encoding="utf-8") as f:
+                        json.dump(self.config, f, ensure_ascii=False, indent=4)
+                except Exception as e:
+                    print(f"Failed to save config: {e}")
+
 
