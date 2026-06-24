@@ -133,14 +133,6 @@ def rename_patient_folder(path, output_field, prefixes=None):
                 src_file = os.path.join(dirpath, filename)
                 dest_file = os.path.join(dest, filename)
                 
-                # Защита от перезаписи: генерируем уникальное имя, если файл уже существует
-                if os.path.exists(dest_file):
-                    base, ext = os.path.splitext(filename)
-                    counter = 1
-                    while os.path.exists(os.path.join(dest, f"{base}_{counter}{ext}")):
-                        counter += 1
-                    dest_file = os.path.join(dest, f"{base}_{counter}{ext}")
-                
                 # Если файл DICOM или структура, пытаемся обновить PatientID
                 if filename.lower().endswith('.dcm') or filename.startswith('STR'):
                     try:
