@@ -75,6 +75,7 @@ if USE_PYQT5:
         PyQt5.QtCore.QCoreApplication.setAttribute(PyQt5.QtCore.Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
         PyQt5.QtCore.QCoreApplication.setAttribute(PyQt5.QtCore.Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
         os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+        os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = "PassThrough"
 
         # Подменяем модули в sys.modules
         sys.modules['PyQt6'] = sys.modules.get('PyQt5')
@@ -211,13 +212,6 @@ def main():
             pass
 
     app = QApplication(sys.argv)
-    
-    # Отключаем субпиксельное сглаживание ClearType для PyQt5, чтобы убрать цветную кайму и утолщение букв
-    if USE_PYQT5:
-        from PyQt5.QtGui import QFont
-        font = QFont("Segoe UI")
-        font.setStyleStrategy(QFont.StyleStrategy.NoSubpixelAntialias)
-        app.setFont(font)
     
     # Set application-wide default window icon
     from PyQt6.QtGui import QIcon
