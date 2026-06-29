@@ -531,18 +531,18 @@ class SettingsDialog(QDialog):
         self.settings_server_combo = QComboBox()
         self.settings_server_combo.setFixedHeight(30)
         
-        self.add_server_btn = QPushButton("+ Добавить")
-        self.add_server_btn.setFixedWidth(80)
+        self.add_server_btn = QPushButton("Add")
+        self.add_server_btn.setFixedWidth(60)
         self.add_server_btn.setFixedHeight(30)
         self.add_server_btn.clicked.connect(self.add_server_action)
         
-        self.del_server_btn = QPushButton("- Удалить")
-        self.del_server_btn.setFixedWidth(80)
+        self.del_server_btn = QPushButton("Del")
+        self.del_server_btn.setFixedWidth(60)
         self.del_server_btn.setFixedHeight(30)
         self.del_server_btn.clicked.connect(self.del_server_action)
 
-        self.rename_server_btn = QPushButton("Имя")
-        self.rename_server_btn.setFixedWidth(60)
+        self.rename_server_btn = QPushButton("Rename")
+        self.rename_server_btn.setFixedWidth(70)
         self.rename_server_btn.setFixedHeight(30)
         self.rename_server_btn.clicked.connect(self.rename_server_action)
 
