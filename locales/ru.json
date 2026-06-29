@@ -1,9 +1,9 @@
 {
-  "tab_ct_images": "CT images",
-  "tab_ct_archive": "CT archive",
+  "tab_ct_images": "Снимки КТ",
+  "tab_ct_archive": "Архив КТ",
   "tab_pacs": "PACS",
-  "btn_send_to_pacs": "Send to PACS",
-  "btn_send_to_ct": "Send to CT images",
+  "btn_send_to_pacs": "Отправить в PACS",
+  "btn_send_to_ct": "Скачать в CT Images",
   "btn_open_folder": "Открыть папку",
   "btn_open_archive": "Открыть папку архива",
   "btn_force_check": "Принудительное сканирование",
@@ -22,9 +22,9 @@
   "placeholder_not_selected_ct": "Папка для сканирования не выбрана",
 
   "settings_title": "Настройки",
-  "settings_tab_general": "General",
-  "settings_tab_archive": "Archive",
-  "settings_tab_ui": "UI Settings",
+  "settings_tab_general": "Основные",
+  "settings_tab_archive": "Архив",
+  "settings_tab_ui": "Интерфейс",
   "settings_tab_pacs": "PACS",
 
   "settings_ct_dir": "Папка CT Images:",
@@ -134,9 +134,9 @@
   "dlg_rename_server_label": "Введите новое имя для '{}':",
   "btn_checking": "Проверка...",
   "btn_browse": "Обзор",
-  "settings_btn_add": "Добавить",
-  "settings_btn_del": "Удалить",
-  "settings_btn_rename": "Переименовать",
+  "settings_btn_add": "Доб.",
+  "settings_btn_del": "Удл.",
+  "settings_btn_rename": "Имя",
   "btn_save": "Сохранить",
   "btn_cancel": "Отмена",
 
@@ -172,5 +172,6 @@
   "loading_title_data": "Загрузка данных",
   "loading_preparing_table": "Подготовка к заполнению таблицы...",
   "loading_rendering_table": "Отрисовка таблицы: {} из {} пациентов...",
-  "loading_scanning_folders": "Сканирование: {} из {} папок — {}%"
+  "loading_scanning_folders": "Сканирование: {} из {} папок — {}%",
+  "pacs_standby_mode": "Дежурный режим"
 }

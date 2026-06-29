@@ -919,11 +919,11 @@ class MainWindow(QMainWindow):
         self.pacs_date_to.setFixedHeight(30)
         self.pacs_date_to.dateChanged.connect(lambda: self.fill_pacs_list(silent=True))
         
-        self.pacs_auto_scan_cb = ToggleSwitch("Standby mode")
+        self.pacs_auto_scan_cb = ToggleSwitch(tr_ui("pacs_standby_mode"))
         self.pacs_auto_scan_cb.setChecked(self.config.get('auto_update_is', 'off').lower() == 'on')
         self.pacs_auto_scan_cb.stateChanged.connect(self.on_pacs_auto_scan_changed)
         
-        self.send_to_ct_btn = QPushButton("Send to CT images")
+        self.send_to_ct_btn = QPushButton(tr_ui("btn_send_to_ct"))
         self.send_to_ct_btn.setFixedHeight(30)
         self.send_to_ct_btn.setEnabled(False)
         self.send_to_ct_btn.clicked.connect(self.send_to_ct_images_cmd)
@@ -2206,7 +2206,7 @@ class MainWindow(QMainWindow):
             self.download_progress_dialog = None
 
         self.send_to_ct_btn.setEnabled(True)
-        self.send_to_ct_btn.setText("Send to CT images")
+        self.send_to_ct_btn.setText(tr_ui("btn_send_to_ct"))
         log_message(self.output_field, msg)
         
         if success:
@@ -2401,6 +2401,7 @@ class MainWindow(QMainWindow):
         self.lbl_to.setText(tr_ui("lbl_to"))
         self.lbl_server.setText(tr_ui("lbl_server"))
         self.send_to_ct_btn.setText(tr_ui("btn_send_to_ct"))
+        self.pacs_auto_scan_cb.setText(tr_ui("pacs_standby_mode"))
         
         self.images_table.set_placeholder_text(tr_ui("placeholder_no_studies_in_folder"))
         self.archive_table.set_placeholder_text(tr_ui("placeholder_no_studies_in_folder"))

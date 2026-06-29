@@ -172,5 +172,6 @@
   "loading_title_data": "Loading data",
   "loading_preparing_table": "Preparing to fill the table...",
   "loading_rendering_table": "Rendering table: {} of {} patients...",
-  "loading_scanning_folders": "Scanning: {} of {} folders — {}%"
+  "loading_scanning_folders": "Scanning: {} of {} folders — {}%",
+  "pacs_standby_mode": "Standby mode"
 }
