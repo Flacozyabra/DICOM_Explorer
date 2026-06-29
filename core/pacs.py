@@ -110,13 +110,34 @@ def ping_pacs(pacs_ip, pacs_port, called_aet="ANY-SCP", calling_aet="ECHOSCU"):
     if len(called_aet) > 16:
         return False, f"Ошибка: Удаленный AE Title (AET Remote) '{called_aet}' превышает 16 символов."
 
+    import io
+    import logging
+
+    # Capture pynetdicom logs to diagnose exact network/association issues
+    log_stream = io.StringIO()
+    log_handler = logging.StreamHandler(log_stream)
+    log_handler.setLevel(logging.INFO)
+
+    pynetdicom_logger = logging.getLogger('pynetdicom')
+    orig_level = pynetdicom_logger.level
+    pynetdicom_logger.setLevel(logging.INFO)
+    pynetdicom_logger.addHandler(log_handler)
+
     ae = AE()
     ae.ae_title = calling_aet
     ae.connection_timeout = 3
     ae.add_requested_context('1.2.840.10008.1.1')  # C-ECHO
     ae.add_requested_context('1.2.840.10008.5.1.4.1.2.1.1')  # C-FIND
+
+    assoc = None
     try:
         assoc = ae.associate(pacs_ip, pacs_port, ae_title=called_aet)
+
+        # Remove logger handlers to prevent resource leaks
+        pynetdicom_logger.removeHandler(log_handler)
+        pynetdicom_logger.setLevel(orig_level)
+        log_output = log_stream.getvalue()
+
         if assoc.is_established:
             # 1. Проверяем C-ECHO
             echo_status = assoc.send_c_echo()
@@ -153,8 +174,60 @@ def ping_pacs(pacs_ip, pacs_port, called_aet="ANY-SCP", calling_aet="ECHOSCU"):
                 
             return True, "Соединение успешно установлено!\nPACS сервер ответил на пинг и разрешил поиск (устройство зарегистрировано)."
         else:
+            # Parse reject/connection details from logs
+            if "timed out" in log_output or "timeout" in log_output or "Connection timed out" in log_output:
+                return False, (
+                    f"Ошибка: Не удалось подключиться к PACS серверу по адресу {pacs_ip}:{pacs_port}.\n\n"
+                    f"Превышено время ожидания подключения (таймаут).\n"
+                    f"Проверьте, что PACS сервер включен, IP-адрес указан верно, и соединение не блокируется брандмауэром."
+                )
+            elif "Connection refused" in log_output or "refused" in log_output:
+                return False, (
+                    f"Ошибка: Не удалось подключиться к PACS серверу по адресу {pacs_ip}:{pacs_port}.\n\n"
+                    f"Подключение отклонено (Connection refused).\n"
+                    f"Проверьте, что PACS порт ({pacs_port}) указан верно и служба PACS на сервере запущена."
+                )
+            elif "Calling AE title not recognised" in log_output or "Calling AE Title Not Recognized" in log_output:
+                import socket
+                local_ip = "не определен"
+                try:
+                    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    s.connect((pacs_ip, pacs_port))
+                    local_ip = s.getsockname()[0]
+                    s.close()
+                except Exception:
+                    pass
+                return False, (
+                    f"Ошибка: PACS сервер отклонил DICOM-ассоциацию.\n\n"
+                    f"Причина: Локальный AE Title (AET Local: \"{calling_aet}\") не зарегистрирован на PACS сервере.\n\n"
+                    f"Пожалуйста, обратитесь к администратору PACS и попросите зарегистрировать ваш компьютер:\n"
+                    f"- IP-адрес: {local_ip}\n"
+                    f"- AE Title (AET Local): {calling_aet}"
+                )
+            elif "Called AE title not recognised" in log_output or "Called AE Title Not Recognized" in log_output:
+                return False, (
+                    f"Ошибка: PACS сервер отклонил DICOM-ассоциацию.\n\n"
+                    f"Причина: Удаленный AE Title (AET Remote: \"{called_aet}\") не распознан сервером.\n\n"
+                    f"Проверьте правильность написания AET Remote (он чувствителен к регистру)."
+                )
+
+            # Extract generic reason if present
+            reason_line = ""
+            for line in log_output.splitlines():
+                if "Reason:" in line:
+                    reason_line = line.split("Reason:")[-1].strip()
+                    break
+
+            if reason_line:
+                return False, f"Ошибка: PACS сервер отклонил ассоциацию.\nПричина: {reason_line}."
+
             return False, "Ошибка: Не удалось установить связь с PACS сервером.\nПроверьте IP-адрес, порт и AE Titles."
     except Exception as e:
+        try:
+            pynetdicom_logger.removeHandler(log_handler)
+            pynetdicom_logger.setLevel(orig_level)
+        except Exception:
+            pass
         return False, f"Произошла ошибка при подключении:\n{str(e)}"
 
 

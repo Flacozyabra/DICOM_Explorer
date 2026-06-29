@@ -1100,8 +1100,10 @@ class MainWindow(QMainWindow):
             self.fill_archive_list()
         elif index == 2:  # PACS
             self.fill_pacs_list()
-            # Запускаем таймер PACS
-            self.pacs_timer.start(self.config.get('pacs_scan_time', 10000))
+            # Запускаем таймер PACS только если включено автообновление или фоновые уведомления
+            pacs_auto_scan_on = self.config.get('auto_update_is', 'off').lower() == 'on'
+            if pacs_auto_scan_on or pacs_notify_on:
+                self.pacs_timer.start(self.config.get('pacs_scan_time', 10000))
 
     # ================= ЛОГИКА ТАБЛИЦЫ CT IMAGES =================
 
@@ -1809,10 +1811,20 @@ class MainWindow(QMainWindow):
 
     def start_pacs_scan(self, silent=False):
         if self.pacs_worker and self.pacs_worker.isRunning():
-            return
+            if not silent:
+                # If we manually request a scan (non-silent), disconnect the previous worker's finished signal
+                # so we can start a new scan immediately with the chosen date range without waiting for the background one.
+                try:
+                    self.pacs_worker.finished.disconnect()
+                except TypeError:
+                    pass
+            else:
+                return
 
         if not silent:
             log_message(self.output_field, "Пытаюсь подключиться к серверу PACS")
+            self.pacs_table.set_placeholder_text("Выполняется сканирование PACS сервера...")
+            self.pacs_table.update_placeholder_visibility()
 
         self.selected_pacs_patient_id = None
         selected_ranges = self.pacs_table.selectedRanges()
