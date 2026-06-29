@@ -42,19 +42,30 @@ def load_locales():
 # Auto load on module import
 load_locales()
 
-def get_current_langs():
+_current_interface_lang = 'en'
+_current_log_lang = 'en'
+
+def load_initial_langs():
+    global _current_interface_lang, _current_log_lang
     config_path = get_config_path()
-    interface_lang = 'en'
-    log_lang = 'en'
     if os.path.exists(config_path):
         try:
             with open(config_path, "r", encoding="utf-8") as f:
                 config = json.load(f)
-                interface_lang = config.get('interface_lang', 'en')
-                log_lang = config.get('log_lang', 'en')
+                _current_interface_lang = config.get('interface_lang', 'en')
+                _current_log_lang = config.get('log_lang', 'en')
         except Exception:
             pass
-    return interface_lang, log_lang
+
+load_initial_langs()
+
+def get_current_langs():
+    return _current_interface_lang, _current_log_lang
+
+def set_current_langs(interface_lang, log_lang):
+    global _current_interface_lang, _current_log_lang
+    _current_interface_lang = interface_lang
+    _current_log_lang = log_lang
 
 def tr_ui(key, *args):
     lang, _ = get_current_langs()

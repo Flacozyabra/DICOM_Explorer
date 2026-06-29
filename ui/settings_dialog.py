@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
 
 from ui.toggle_switch import ToggleSwitch
 from core.config_utils import get_config_path, get_app_data_dir, get_resource_path
-from core.locale_utils import tr_ui
+from core.locale_utils import tr_ui, set_current_langs
 
 
 def apply_dark_title_bar(widget):
@@ -921,6 +921,7 @@ class SettingsDialog(QDialog):
 
     def on_interface_lang_changed(self, lang):
         self.config['interface_lang'] = lang
+        set_current_langs(self.config.get('interface_lang', 'en'), self.config.get('log_lang', 'en'))
         # Retranslate SettingsDialog itself
         self.retranslate_ui()
         # Apply to MainWindow
@@ -930,6 +931,7 @@ class SettingsDialog(QDialog):
 
     def on_log_lang_changed(self, lang):
         self.config['log_lang'] = lang
+        set_current_langs(self.config.get('interface_lang', 'en'), self.config.get('log_lang', 'en'))
         # Apply to MainWindow
         from ui.main_window import MainWindow
         if MainWindow.instance:

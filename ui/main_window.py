@@ -21,7 +21,7 @@ from core.notifier import show_notification
 from core.logger import log_message
 from core.pacs import pacs_dict_create, download_patient_from_pacs
 from core.config_utils import get_resource_path, VERSION
-from core.locale_utils import tr_ui, tr_log
+from core.locale_utils import tr_ui, tr_log, set_current_langs
 from ui.settings_dialog import SettingsDialog
 from ui.toggle_switch import ToggleSwitch
 from ui.centered_date_edit import CenteredDateEdit
@@ -512,6 +512,7 @@ class MainWindow(QMainWindow):
         new_dir = config.get('ct_images_dir', '')
         
         self.config = config.copy()
+        set_current_langs(self.config.get('interface_lang', 'en'), self.config.get('log_lang', 'en'))
         
         # 1. Обновляем шрифты таблиц
         font_size = self.config.get('patient_font_size', 16)
