@@ -221,6 +221,13 @@ def main():
     splash = LoadingSplash()
     splash.show()
     
+    # Close PyInstaller bootloader splash screen if it was shown
+    try:
+        import pyi_splash
+        pyi_splash.close()
+    except ImportError:
+        pass
+    
     _worker = ImportWorker()
     _worker.progress.connect(splash.set_progress)
     

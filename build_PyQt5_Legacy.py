@@ -108,6 +108,7 @@ def build_executable(has_icon):
         "--add-data=themes;themes",
         "--add-data=locales;locales",
         "--name=DICOM_WatchDog_v1.3.0_PyQt5_Legacy",
+        "--splash=src/logo.png",
     ]
 
     if has_icon:
