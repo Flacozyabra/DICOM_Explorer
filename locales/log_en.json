@@ -53,8 +53,10 @@
   "log_runtime_error": "Runtime error:\n{}",
   "log_dcm_read_patient_error": "Error reading DICOM in {}: {}",
   "log_dcm_update_id_warning": "Warning: failed to update PatientID in file {}: {}",
-  "log_files_merged_success": "Files successfully merged into existing folder: {}, new PatientID: {}, source folder {} deleted",
+  "log_files_merged_success": "Files successfully merged into existing folder: {} (source folder {} deleted)",
+  "log_files_merged_success_with_id": "Files successfully merged into existing folder: {}, new PatientID: {} (source folder {} deleted)",
   "log_folders_merge_error": "Error merging folders {} -> {}: {}",
-  "log_folder_renamed_success": "Renamed: {} -> {}, new PatientID: {}",
+  "log_folder_renamed_success": "Renamed: {} -> {}",
+  "log_folder_renamed_success_with_id": "Renamed: {} -> {} (new PatientID: {})",
   "log_folder_rename_error": "Error renaming {}: {}"
 }

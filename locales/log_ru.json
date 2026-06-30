@@ -53,8 +53,10 @@
   "log_runtime_error": "Ошибка выполнения:\n{}",
   "log_dcm_read_patient_error": "Ошибка чтения DICOM в {}: {}",
   "log_dcm_update_id_warning": "Предупреждение: не удалось обновить PatientID в файле {}: {}",
-  "log_files_merged_success": "Файлы успешно объединены в существующую папку: {}, новый PatientID: {}, исходная папка {} удалена",
+  "log_files_merged_success": "Файлы успешно объединены в существующую папку: {} (исходная папка {} удалена)",
+  "log_files_merged_success_with_id": "Файлы успешно объединены в существующую папку: {}, новый PatientID: {} (исходная папка {} удалена)",
   "log_folders_merge_error": "Ошибка при слиянии папок {} -> {}: {}",
-  "log_folder_renamed_success": "Переименовано: {} -> {}, новый PatientID: {}",
+  "log_folder_renamed_success": "Переименовано: {} -> {}",
+  "log_folder_renamed_success_with_id": "Переименовано: {} -> {} (новый PatientID: {})",
   "log_folder_rename_error": "Ошибка переименования {}: {}"
 }

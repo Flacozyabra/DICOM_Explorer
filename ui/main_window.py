@@ -1478,7 +1478,8 @@ class MainWindow(QMainWindow):
         menu.exec(self.images_table.viewport().mapToGlobal(pos))
 
     def delete_patient_action(self, patient_id, patient_name):
-        path = os.path.join(self.config.get('ct_images_dir', ''), patient_id)
+        folder_name = self.images_cache[patient_id].get('folder_name', patient_id) if (self.images_cache and patient_id in self.images_cache) else patient_id
+        path = os.path.join(self.config.get('ct_images_dir', ''), folder_name)
         if not os.path.exists(path):
             log_message(self.output_field, tr_log("log_path_not_exist", path))
             return
@@ -1502,7 +1503,8 @@ class MainWindow(QMainWindow):
                 log_message(self.output_field, tr_log("log_failed_delete_patient", patient_id, patient_name_str, e))
 
     def archive_patient_action(self, patient_id, patient_name=None):
-        path = os.path.join(self.config.get('ct_images_dir', ''), patient_id)
+        folder_name = self.images_cache[patient_id].get('folder_name', patient_id) if (self.images_cache and patient_id in self.images_cache) else patient_id
+        path = os.path.join(self.config.get('ct_images_dir', ''), folder_name)
         archive_dir = self.config.get('archive_dir', '')
         
         if not os.path.exists(path):
@@ -1512,7 +1514,7 @@ class MainWindow(QMainWindow):
         if not os.path.exists(archive_dir):
             os.makedirs(archive_dir)
 
-        dest_path = os.path.join(archive_dir, patient_id)
+        dest_path = os.path.join(archive_dir, folder_name)
         try:
             if os.path.exists(dest_path):
                 shutil.rmtree(dest_path)
@@ -1524,7 +1526,8 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, tr_ui("dlg_error_archive_title"), tr_ui("dlg_error_archive_msg", e))
 
     def clean_str_action(self, patient_id):
-        path = os.path.join(self.config.get('ct_images_dir', ''), patient_id)
+        folder_name = self.images_cache[patient_id].get('folder_name', patient_id) if (self.images_cache and patient_id in self.images_cache) else patient_id
+        path = os.path.join(self.config.get('ct_images_dir', ''), folder_name)
         if os.path.exists(path):
             deleted = delete_redundant_str(path, self.output_field)
             patient_name = ""
@@ -1733,7 +1736,8 @@ class MainWindow(QMainWindow):
         menu.exec(self.archive_table.viewport().mapToGlobal(pos))
 
     def delete_archive_patient_action(self, patient_id, patient_name):
-        path = os.path.join(self.config.get('archive_dir', ''), patient_id)
+        folder_name = self.archive_cache[patient_id].get('folder_name', patient_id) if (self.archive_cache and patient_id in self.archive_cache) else patient_id
+        path = os.path.join(self.config.get('archive_dir', ''), folder_name)
         if not os.path.exists(path):
             log_message(self.output_field, tr_log("log_path_not_exist", path))
             return
@@ -1768,12 +1772,13 @@ class MainWindow(QMainWindow):
         archive_dir = self.config.get('archive_dir', '')
         ct_images_dir = self.config.get('ct_images_dir', '')
         
-        path = os.path.join(archive_dir, patient_id)
+        folder_name = self.archive_cache[patient_id].get('folder_name', patient_id) if (self.archive_cache and patient_id in self.archive_cache) else patient_id
+        path = os.path.join(archive_dir, folder_name)
         if not os.path.exists(path):
             log_message(self.output_field, tr_log("log_patient_not_found_in_archive", patient_id, patient_name))
             return
             
-        dest_path = os.path.join(ct_images_dir, patient_id)
+        dest_path = os.path.join(ct_images_dir, folder_name)
         try:
             if os.path.exists(dest_path):
                 shutil.rmtree(dest_path)
@@ -2286,12 +2291,14 @@ class MainWindow(QMainWindow):
 
     def open_patient_folder(self, patient_id, is_archive=False):
         dir_key = 'archive_dir' if is_archive else 'ct_images_dir'
-        path = os.path.join(self.config.get(dir_key, ''), patient_id)
+        cache = self.archive_cache if is_archive else self.images_cache
+        folder_name = cache[patient_id].get('folder_name', patient_id) if (cache and patient_id in cache) else patient_id
+        path = os.path.join(self.config.get(dir_key, ''), folder_name)
         if os.path.exists(path):
             try:
                 os.startfile(path)
             except Exception as e:
-                log_message(self.output_field, f"Не удалось открыть папку {patient_id}: {e}")
+                log_message(self.output_field, f"Не удалось открыть папку {folder_name}: {e}")
         else:
             log_message(self.output_field, f"Папка {path} не существует")
 
@@ -2305,7 +2312,9 @@ class MainWindow(QMainWindow):
 
     def open_viewer(self, patient_id, is_archive=False):
         dir_key = 'archive_dir' if is_archive else 'ct_images_dir'
-        patient_dir = os.path.join(self.config.get(dir_key, ''), patient_id)
+        cache = self.archive_cache if is_archive else self.images_cache
+        folder_name = cache[patient_id].get('folder_name', patient_id) if (cache and patient_id in cache) else patient_id
+        patient_dir = os.path.join(self.config.get(dir_key, ''), folder_name)
         
         if not os.path.exists(patient_dir):
             log_message(self.output_field, f"Путь {patient_dir} не существует")
