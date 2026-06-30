@@ -135,17 +135,21 @@ class WatchdogHandler(QObject, FileSystemEventHandler):
 
 
 class ThreadLogCollector:
-    def __init__(self):
+    def __init__(self, emit_callback=None):
         self.messages = []
+        self.emit_callback = emit_callback
 
     def appendPlainText(self, text):
         self.messages.append(text)
+        if self.emit_callback:
+            self.emit_callback(text)
 
 
 class FolderScanWorker(QThread):
     finished = pyqtSignal(dict, list)
     progress = pyqtSignal(int, int)  # (current, total)
     status_changed = pyqtSignal(str) # (status_text)
+    log_emitted = pyqtSignal(str)
 
     def __init__(self, ct_images_dir, cleanup_structures_enabled, fix_patient_id_enabled, id_prefixes,
                  rename_study_folder_enabled, rename_study_folder_mode,
@@ -164,7 +168,7 @@ class FolderScanWorker(QThread):
         self.archive_cleanup_days = archive_cleanup_days
 
     def run(self):
-        collector = ThreadLogCollector()
+        collector = ThreadLogCollector(emit_callback=self.log_emitted.emit)
         is_cleanup_struct_on = self.cleanup_structures_enabled.lower() == 'true'
         is_fix_id_on = self.fix_patient_id_enabled.lower() == 'true'
         is_rename_folder_on = self.rename_study_folder_enabled.lower() == 'true'
@@ -251,6 +255,7 @@ class PacsScanWorker(QThread):
 class ArchiveScanWorker(QThread):
     finished = pyqtSignal(dict, list)
     progress = pyqtSignal(int, int)  # (current, total)
+    log_emitted = pyqtSignal(str)
 
     def __init__(self, archive_dir, cleanup_structures_enabled):
         super().__init__()
@@ -258,7 +263,7 @@ class ArchiveScanWorker(QThread):
         self.cleanup_structures_enabled = cleanup_structures_enabled
 
     def run(self):
-        collector = ThreadLogCollector()
+        collector = ThreadLogCollector(emit_callback=self.log_emitted.emit)
         is_cleanup_struct_on = self.cleanup_structures_enabled.lower() == 'true'
         from core.archive import archive_dict_create
         d = archive_dict_create(
@@ -1229,6 +1234,7 @@ class MainWindow(QMainWindow):
             archive_cleanup_enabled, archive_cleanup_days
         )
         self.scan_worker.finished.connect(self.on_folder_scan_finished)
+        self.scan_worker.log_emitted.connect(lambda msg: log_message(self.output_field, msg))
         
         if show_progress:
             from ui.loading_dialog import LoadingProgressDialog
@@ -1245,8 +1251,7 @@ class MainWindow(QMainWindow):
             self.scan_worker.start()
 
     def on_folder_scan_finished(self, patient_dict, log_messages):
-        for msg in log_messages:
-            log_message(self.output_field, msg)
+        pass
 
         # Собираем существующие ID пациентов для сравнения
         existing_ids = set()
@@ -1589,6 +1594,8 @@ class MainWindow(QMainWindow):
         cleanup_str_val = self.config.get('cleanup_structures_enabled', 'False')
         self.archive_worker = ArchiveScanWorker(archive_dir, cleanup_str_val)
         self.archive_worker.finished.connect(lambda ad, lm: self.on_archive_scan_finished(ad, lm, silent))
+        if not silent:
+            self.archive_worker.log_emitted.connect(lambda msg: log_message(self.output_field, msg))
         
         if show_progress:
             from ui.loading_dialog import LoadingProgressDialog
@@ -1605,9 +1612,6 @@ class MainWindow(QMainWindow):
 
     def on_archive_scan_finished(self, archive_dict, log_messages, silent=False):
         if not silent:
-            for msg in log_messages:
-                log_message(self.output_field, msg)
-
             log_message(self.output_field, tr_log("log_archive_loaded"), replace_suffix=tr_log("log_loading_archive"))
         self.archive_cache = archive_dict
         
