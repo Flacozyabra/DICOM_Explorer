@@ -102,6 +102,7 @@ def build_executable(has_icon):
         "--windowed",  # без консоли
         "--add-data=src;src",
         "--add-data=themes;themes",
+        "--add-data=locales;locales",
         "--name=DICOM_WatchDog_v1.3.0_PyQt5",
     ]
     
