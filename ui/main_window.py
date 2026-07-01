@@ -1486,14 +1486,20 @@ class MainWindow(QMainWindow):
 
     def rename_tab_dialog(self, index):
         from PyQt6.QtWidgets import QInputDialog
+        from ui.settings_dialog import apply_dark_title_bar
         
         current_name = self.tab_widget.tabText(index)
-        new_name, ok = QInputDialog.getText(
-            self, 
-            tr_ui("dlg_rename_tab_title"), 
-            tr_ui("dlg_rename_tab_label", current_name),
-            text=current_name
-        )
+        
+        dialog = QInputDialog(self)
+        dialog.setWindowTitle(tr_ui("dlg_rename_tab_title"))
+        dialog.setLabelText(tr_ui("dlg_rename_tab_label", current_name))
+        dialog.setTextValue(current_name)
+        dialog.setInputMode(QInputDialog.InputMode.TextInput)
+        dialog.setStyleSheet(self.styleSheet())
+        apply_dark_title_bar(dialog)
+        
+        ok = dialog.exec()
+        new_name = dialog.textValue()
         
         if ok and new_name.strip():
             new_name = new_name.strip()
