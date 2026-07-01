@@ -64,7 +64,7 @@ def check_and_install_dependencies():
 
 def generate_ico_icon():
     print_banner("2. Генерация иконки приложения")
-    png_path = Path("src") / "logo.png"
+    png_path = Path("src") / "splashscreen_logo.png"
     ico_path = Path("src") / "app_icon.ico"
     
     if not png_path.exists():
@@ -104,7 +104,7 @@ def build_executable(has_icon):
         "--add-data=themes;themes",
         "--add-data=locales;locales",
         "--name=DICOM_WatchDog_v1.3.0_PyQt5",
-        "--splash=src/logo.png",
+        "--splash=src/splashscreen_logo.png",
     ]
     
     if has_icon:

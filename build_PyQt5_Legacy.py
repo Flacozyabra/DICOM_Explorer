@@ -68,7 +68,7 @@ def check_and_install_dependencies():
 
 def generate_ico_icon():
     print_banner("2. Generating application icon")
-    png_path = Path("src") / "logo.png"
+    png_path = Path("src") / "splashscreen_logo.png"
     ico_path = Path("src") / "app_icon.ico"
 
     if not png_path.exists():

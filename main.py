@@ -216,7 +216,7 @@ def main():
     # Set application-wide default window icon
     from PyQt6.QtGui import QIcon
     from core.config_utils import get_resource_path
-    app.setWindowIcon(QIcon(get_resource_path("src/logo.png")))
+    app.setWindowIcon(QIcon(get_resource_path("src/splashscreen_logo.png")))
     
     splash = LoadingSplash()
     splash.show()
