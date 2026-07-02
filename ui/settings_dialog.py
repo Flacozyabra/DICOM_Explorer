@@ -23,7 +23,7 @@ def get_system_voices():
             "powershell", "-NoProfile", "-Command",
             "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $speech = New-Object -ComObject SAPI.SpVoice; foreach ($v in $speech.GetVoices()) { $v.GetDescription() }"
         ]
-        output = subprocess.check_output(cmd, text=True, encoding="utf-8")
+        output = subprocess.check_output(cmd, text=True, encoding="utf-8", creationflags=subprocess.CREATE_NO_WINDOW)
         voices = [line.strip() for line in output.splitlines() if line.strip()]
         return voices
     except Exception as e:
