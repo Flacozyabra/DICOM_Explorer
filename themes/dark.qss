@@ -85,7 +85,6 @@ QHeaderView::section {
     color: #ffffff;
     padding: 6px;
     border: none;
-    border-right: 1px solid #2d2d2d;
 }
 
 /* Стили текстового поля вывода логов */
